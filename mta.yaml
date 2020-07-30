@@ -1,0 +1,85 @@
+ID: demo
+_schema-version: '2.1'
+parameters:
+  deploy_mode: html5-repo
+version: 0.0.1
+modules:
+  - name: demo-approuter
+    type: approuter.nodejs
+    path: demo-approuter
+    parameters:
+      disk-quota: 256M
+      memory: 256M
+    requires:
+      - name: demo_html5_repo_runtime
+      - name: cap-config
+        group: destinations
+        properties:
+          name: serviceapi
+          url: '~{url}'
+          forwardAuthToken: true
+      - name: dest_demo
+      - name: uaa_demo
+  - name: demo_ui_deployer
+    type: com.sap.html5.application-content
+    path: demo_ui_deployer
+    requires:
+      - name: demo_html5_repo_host
+    build-parameters:
+      requires:
+        - name: demo_ui
+          artifacts:
+            - './*'
+          target-path: resources/demo_ui
+        - name: demo_ui_destination
+          artifacts:
+            - './*'
+          target-path: resources/demo_ui_destination
+  - name: demo_ui
+    type: html5
+    path: demo_ui
+    build-parameters:
+      builder: custom
+      commands:
+        - npm install
+        - npm run build
+      supported-platforms: []
+      build-result: dist
+  - name: demo_ui_destination
+    type: html5
+    path: demo_ui_destination
+    build-parameters:
+      builder: custom
+      commands:
+        - npm install
+        - npm run build
+      supported-platforms: []
+      build-result: dist
+resources:
+  - name: demo_html5_repo_runtime
+    parameters:
+      service-plan: app-runtime
+      service: html5-apps-repo
+    type: org.cloudfoundry.managed-service
+  - name: demo_html5_repo_host
+    parameters:
+      service-plan: app-host
+      service: html5-apps-repo
+    type: org.cloudfoundry.managed-service
+  - name: uaa_demo
+    parameters:
+      path: ./xs-security.json
+      service-plan: application
+      service: xsuaa
+    type: org.cloudfoundry.managed-service
+  - name: dest_demo
+    parameters:
+      service-plan: lite
+      service: destination
+    type: org.cloudfoundry.managed-service
+  - name: cap-config
+    type: configuration
+    parameters:
+      provider-nid: mta
+      provider-id: 'myapi-cf-srv:srv_api'
+      version: '>=0.0.0'

@@ -1,0 +1,9 @@
+<mvc:View
+	controllerName="au.com.tri.demo_ui_destination.controller.App"
+	displayBlock="true"
+	xmlns="sap.m"
+	xmlns:mvc="sap.ui.core.mvc">
+
+	<App id="app"/>
+
+</mvc:View>
